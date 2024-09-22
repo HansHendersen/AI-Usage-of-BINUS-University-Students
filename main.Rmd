@@ -1,0 +1,60 @@
+---
+title: "AOL Survey Sampling"
+author: "Hans"
+date: "2024-06-17"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
+```{r}
+survey <- read.csv("Penelitian Penggunaan Kecerdasan Buatan di Lingkungan Akademik (Responses) (2).csv",sep=";")
+```
+
+```{r}
+colSums(is.na(survey))
+```
+
+```{r}
+survey$Berapa.frekuensi.penggunaan.AI.dalam.sehari. <- ifelse(survey$Berapa.frekuensi.penggunaan.AI.dalam.sehari. == "Sangat jarang", 0, ifelse(survey$Berapa.frekuensi.penggunaan.AI.dalam.sehari. == "Kadang kadang", 1, ifelse(survey$Berapa.frekuensi.penggunaan.AI.dalam.sehari. == "Sering", 2, 3)))
+
+survey$Apakah.Anda.pernah.mengikuti.lomba. <- ifelse(survey$Apakah.Anda.pernah.mengikuti.lomba. == "Tidak", 0, 1)
+
+survey$Jika.ya..apa.peran.AI.dalam.membantu.proyek.lomba.Anda. <- ifelse(survey$Jika.ya..apa.peran.AI.dalam.membantu.proyek.lomba.Anda. == "Tidak ada peran" | survey$Jika.ya..apa.peran.AI.dalam.membantu.proyek.lomba.Anda. == "", 0, ifelse(survey$Jika.ya..apa.peran.AI.dalam.membantu.proyek.lomba.Anda. == "Membantu dalam penelitian", 1, ifelse(survey$Jika.ya..apa.peran.AI.dalam.membantu.proyek.lomba.Anda. == "Membantu dalam analisis data", 2, ifelse(survey$Jika.ya..apa.peran.AI.dalam.membantu.proyek.lomba.Anda. == "Membantu dalam presentasi", 3, 4))))
+
+survey$Rentang.IPK.Anda. <- ifelse(survey$Rentang.IPK.Anda. == "1.0 - 2.0", 0, ifelse(survey$Rentang.IPK.Anda. == "2.5 - 3.0", 1, ifelse(survey$Rentang.IPK.Anda. == "3.0 - 3.5", 2, 3)))
+```
+
+```{r}
+library(plotly)
+
+freq_table <- table(survey$Berapa.frekuensi.penggunaan.AI.dalam.sehari.)
+
+plot_ly(
+  x = names(freq_table), 
+  y = as.numeric(freq_table), 
+  type = 'bar', 
+)%>%
+layout(
+  title = "Frekuensi Penggunaan AI",
+  xaxis = list(title = "Frekuensi Penggunaan AI"),
+  yaxis = list(title ="Jumlah")
+)
+```
+
+```{r}
+correlation <- cor(survey$Berapa.frekuensi.penggunaan.AI.dalam.sehari., survey$Berapa.skala.ketergantungan.penggunaan.AI.di.perkuliahan.Anda...1...Sangat.Tidak.Setuju..4...Sangat.Setuju., use = "complete.obs")
+
+print(paste("Korelasi:", correlation))
+
+if (abs(correlation) > 0.7) {
+  print("Validity tinggi")
+} else if (abs(correlation) > 0.5) {
+  print("Validity sedang")
+} else {
+  print("Validity rendah")
+}
+```
